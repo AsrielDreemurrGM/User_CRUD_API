@@ -3,7 +3,6 @@ package br.com.eaugusto.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,13 +25,23 @@ public class UserService implements IUserService {
 	private final IUserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	public UserService(@NonNull IUserRepository userRepository, @NonNull PasswordEncoder passwordEncoder) {
+	public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
+		if (userRepository == null) {
+			throw new IllegalArgumentException("UserRepository cannot be null.");
+		}
+		if (passwordEncoder == null) {
+			throw new IllegalArgumentException("PasswordEncoder cannot be null.");
+		}
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
-	public User saveUser(@NonNull User user) {
+	public User saveUser(User user) {
+		if (user == null) {
+			throw new InvalidUserDataException("O usuário não pode ser nulo.");
+		}
+
 		validateUserData(user);
 		user.setSenha(passwordEncoder.encode(user.getSenha()));
 		return userRepository.save(user);
@@ -44,12 +53,22 @@ public class UserService implements IUserService {
 	}
 
 	@Override
-	public Optional<User> getUserById(@NonNull Long id) {
+	public Optional<User> getUserById(Long id) {
+		if (id == null) {
+			throw new InvalidUserDataException("O ID do usuário não pode ser nulo.");
+		}
 		return userRepository.findById(id);
 	}
 
 	@Override
-	public User updateUser(@NonNull Long id, @NonNull User updatedUser) {
+	public User updateUser(Long id, User updatedUser) {
+		if (id == null) {
+			throw new InvalidUserDataException("O ID do usuário não pode ser nulo.");
+		}
+		if (updatedUser == null) {
+			throw new InvalidUserDataException("Os dados do usuário não podem ser nulos.");
+		}
+
 		User existingUser = userRepository.findById(id)
 				.orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + id));
 
@@ -63,7 +82,11 @@ public class UserService implements IUserService {
 	}
 
 	@Override
-	public void deleteUser(@NonNull Long id) {
+	public void deleteUser(Long id) {
+		if (id == null) {
+			throw new InvalidUserDataException("O ID do usuário não pode ser nulo.");
+		}
+
 		if (!userRepository.existsById(id)) {
 			throw new UserNotFoundException("Usuário não encontrado com o ID: " + id);
 		}
@@ -77,7 +100,10 @@ public class UserService implements IUserService {
 	 * @param user The user object to validate.
 	 * @throws InvalidUserDataException if any required field is null or blank.
 	 */
-	private void validateUserData(@NonNull User user) {
+	private void validateUserData(User user) {
+		if (user == null) {
+			throw new InvalidUserDataException("O usuário não pode ser nulo.");
+		}
 		if (user.getNome() == null || user.getNome().isBlank()) {
 			throw new InvalidUserDataException("O nome do usuário não pode estar vazio.");
 		}
