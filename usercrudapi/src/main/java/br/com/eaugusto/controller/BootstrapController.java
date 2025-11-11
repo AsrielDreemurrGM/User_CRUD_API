@@ -1,5 +1,7 @@
 package br.com.eaugusto.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -44,9 +46,9 @@ public class BootstrapController {
 	}
 
 	@CrossOrigin(origins = "http://localhost:5173")
-	@GetMapping(value = "/api/bootstrap", produces = "text/plain")
+	@GetMapping(value = "/api/bootstrap")
 	@Transactional
-	public ResponseEntity<String> bootstrap() {
+	public ResponseEntity<Map<String, String>> bootstrap() {
 		if (userRepository.findByEmail(ADMINEMAIL).isEmpty()) {
 			User admin = new User();
 			admin.setNome("Admin");
@@ -61,6 +63,7 @@ public class BootstrapController {
 				.orElseThrow(() -> new AdminNotFoundException("Admin user not found after bootstrap"));
 
 		String token = jwtUtil.generateToken(admin);
-		return ResponseEntity.ok(token);
+
+		return ResponseEntity.ok(Map.of("token", token));
 	}
 }
