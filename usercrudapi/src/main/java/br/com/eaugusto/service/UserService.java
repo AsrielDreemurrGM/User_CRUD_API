@@ -72,11 +72,14 @@ public class UserService implements IUserService {
 		User existingUser = userRepository.findById(id)
 				.orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + id));
 
-		validateUserData(updatedUser);
+		validateUserDataForUpdate(updatedUser);
 
 		existingUser.setNome(updatedUser.getNome());
 		existingUser.setEmail(updatedUser.getEmail());
-		existingUser.setSenha(passwordEncoder.encode(updatedUser.getSenha()));
+
+		if (updatedUser.getSenha() != null && !updatedUser.getSenha().isBlank()) {
+			existingUser.setSenha(passwordEncoder.encode(updatedUser.getSenha()));
+		}
 
 		return userRepository.save(existingUser);
 	}
@@ -101,6 +104,19 @@ public class UserService implements IUserService {
 	 * @throws InvalidUserDataException if any required field is null or blank.
 	 */
 	private void validateUserData(User user) {
+		validateUserNameAndEmail(user);
+		if (user.getSenha() == null || user.getSenha().isBlank()) {
+			throw new InvalidUserDataException("A senha do usuário não pode estar vazia.");
+		}
+	}
+
+	/**
+	 * Validates only the name and email fields.
+	 *
+	 * @param user The user object to validate.
+	 * @throws InvalidUserDataException if name or email are null or blank.
+	 */
+	private void validateUserNameAndEmail(User user) {
 		if (user == null) {
 			throw new InvalidUserDataException("O usuário não pode ser nulo.");
 		}
@@ -110,8 +126,16 @@ public class UserService implements IUserService {
 		if (user.getEmail() == null || user.getEmail().isBlank()) {
 			throw new InvalidUserDataException("O e-mail do usuário não pode estar vazio.");
 		}
-		if (user.getSenha() == null || user.getSenha().isBlank()) {
-			throw new InvalidUserDataException("A senha do usuário não pode estar vazia.");
-		}
+	}
+
+	/**
+	 * Validates user data for updates. The field "senha" is intentionally optional
+	 * on updates.
+	 *
+	 * @param user The user object to validate.
+	 * @throws InvalidUserDataException if name or email are null or blank.
+	 */
+	private void validateUserDataForUpdate(User user) {
+		validateUserNameAndEmail(user);
 	}
 }
