@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.lang.NonNull;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.eaugusto.model.User;
@@ -11,7 +12,8 @@ import br.com.eaugusto.repository.IUserRepository;
 
 /**
  * Service layer implementation for managing User entities. Handles CRUD
- * operations by delegating to the repository.
+ * operations by delegating to the repository. Uses BCrypt PasswordEncoder for
+ * encryption.
  * 
  * @author Eduardo Augusto (github.com/AsrielDreemurrGM/)
  * @since Nov 10, 2025
@@ -20,9 +22,11 @@ import br.com.eaugusto.repository.IUserRepository;
 public class UserService implements IUserService {
 
 	private final IUserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
-	public UserService(@NonNull IUserRepository userRepository) {
+	public UserService(@NonNull IUserRepository userRepository, @NonNull PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
@@ -37,6 +41,7 @@ public class UserService implements IUserService {
 			throw new RuntimeException("A senha do usuário não pode estar vazia.");
 		}
 
+		user.setSenha(passwordEncoder.encode(user.getSenha()));
 		return userRepository.save(user);
 	}
 
@@ -72,7 +77,7 @@ public class UserService implements IUserService {
 
 		existingUser.setNome(updatedUser.getNome());
 		existingUser.setEmail(updatedUser.getEmail());
-		existingUser.setSenha(updatedUser.getSenha());
+		existingUser.setSenha(passwordEncoder.encode(updatedUser.getSenha()));
 
 		return userRepository.save(existingUser);
 	}
