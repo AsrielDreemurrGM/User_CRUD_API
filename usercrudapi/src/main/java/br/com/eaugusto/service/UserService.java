@@ -7,6 +7,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import br.com.eaugusto.exception.InvalidUserDataException;
+import br.com.eaugusto.exception.UserNotFoundException;
 import br.com.eaugusto.model.User;
 import br.com.eaugusto.repository.IUserRepository;
 
@@ -31,16 +33,7 @@ public class UserService implements IUserService {
 
 	@Override
 	public User saveUser(@NonNull User user) {
-		if (user.getNome() == null || user.getNome().isBlank()) {
-			throw new RuntimeException("O nome do usuário não pode estar vazio.");
-		}
-		if (user.getEmail() == null || user.getEmail().isBlank()) {
-			throw new RuntimeException("O e-mail do usuário não pode estar vazio.");
-		}
-		if (user.getSenha() == null || user.getSenha().isBlank()) {
-			throw new RuntimeException("A senha do usuário não pode estar vazia.");
-		}
-
+		validateUserData(user);
 		user.setSenha(passwordEncoder.encode(user.getSenha()));
 		return userRepository.save(user);
 	}
@@ -57,23 +50,10 @@ public class UserService implements IUserService {
 
 	@Override
 	public User updateUser(@NonNull Long id, @NonNull User updatedUser) {
-		Optional<User> existingUserOpt = userRepository.findById(id);
+		User existingUser = userRepository.findById(id)
+				.orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + id));
 
-		if (existingUserOpt.isEmpty()) {
-			throw new RuntimeException("Usuário não encontrado com o ID: " + id);
-		}
-
-		User existingUser = existingUserOpt.get();
-
-		if (updatedUser.getNome() == null || updatedUser.getNome().isBlank()) {
-			throw new RuntimeException("O nome do usuário não pode estar vazio.");
-		}
-		if (updatedUser.getEmail() == null || updatedUser.getEmail().isBlank()) {
-			throw new RuntimeException("O e-mail do usuário não pode estar vazio.");
-		}
-		if (updatedUser.getSenha() == null || updatedUser.getSenha().isBlank()) {
-			throw new RuntimeException("A senha do usuário não pode estar vazia.");
-		}
+		validateUserData(updatedUser);
 
 		existingUser.setNome(updatedUser.getNome());
 		existingUser.setEmail(updatedUser.getEmail());
@@ -85,9 +65,27 @@ public class UserService implements IUserService {
 	@Override
 	public void deleteUser(@NonNull Long id) {
 		if (!userRepository.existsById(id)) {
-			throw new RuntimeException("Usuário não encontrado com o ID: " + id);
+			throw new UserNotFoundException("Usuário não encontrado com o ID: " + id);
 		}
 
 		userRepository.deleteById(id);
+	}
+
+	/**
+	 * Validates user data for required fields before persistence.
+	 * 
+	 * @param user The user object to validate.
+	 * @throws InvalidUserDataException if any required field is null or blank.
+	 */
+	private void validateUserData(@NonNull User user) {
+		if (user.getNome() == null || user.getNome().isBlank()) {
+			throw new InvalidUserDataException("O nome do usuário não pode estar vazio.");
+		}
+		if (user.getEmail() == null || user.getEmail().isBlank()) {
+			throw new InvalidUserDataException("O e-mail do usuário não pode estar vazio.");
+		}
+		if (user.getSenha() == null || user.getSenha().isBlank()) {
+			throw new InvalidUserDataException("A senha do usuário não pode estar vazia.");
+		}
 	}
 }
