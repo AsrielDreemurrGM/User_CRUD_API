@@ -15,7 +15,9 @@ import br.com.eaugusto.security.JWTUtil;
 import br.com.eaugusto.service.IUserService;
 
 /**
- *
+ * REST controller responsible for authentication operations. Handles login
+ * requests by verifying user credentials and generating JWT tokens.
+ * 
  * @author Eduardo Augusto (github.com/AsrielDreemurrGM/)
  * @since Nov 11, 2025
  */

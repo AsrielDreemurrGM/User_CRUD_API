@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
+ * Data transfer object representing a user creation or update request. Contains
+ * name, email, and password fields sent by the client. Used for user management
+ * operations in UserController.
  * 
  * @author Eduardo Augusto (github.com/AsrielDreemurrGM/)
  * @since Nov 11, 2025

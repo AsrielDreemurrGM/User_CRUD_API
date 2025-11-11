@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,7 +14,10 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
- *
+ * Spring security configuration class. Configures JWT authentication filter,
+ * stateless session management, CORS rules, and publicly accessible endpoints.
+ * Protects all other endpoints requiring valid JWT tokens.
+ * 
  * @author Eduardo Augusto (github.com/AsrielDreemurrGM/)
  * @since Nov 11, 2025
  */
@@ -31,11 +33,9 @@ public class WebSecurityConfig {
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()).cors(cors -> {
-		}) // use your CorsConfigurationSource
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+		}).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.httpBasic(AbstractHttpConfigurer::disable).formLogin(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/login", "/api/bootstrap").permitAll()
-						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow preflight
 						.anyRequest().authenticated());
 
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

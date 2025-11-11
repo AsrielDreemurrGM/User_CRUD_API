@@ -55,6 +55,11 @@ ON CONFLICT DO NOTHING;
 -- - O backend irá criar um usuário inicial via rota de bootstrap.
 -- - O Spring Boot fará o mapeamento desta tabela automaticamente
 --   através do JPA (Hibernate).
+-- - O token JWT tem validade de 24 horas.
+-- - Caso você limpe as tabelas, ou passe de 24 horas, precisará rodar este
+--   comando no console do seu navegador para limpar o token de conexão:
+--   localStorage.removeItem('token')
+-- - Após, reinicie o front-end e um novo token será gerado automaticamente.
 -- ============================================================
 
 -- ============================================================

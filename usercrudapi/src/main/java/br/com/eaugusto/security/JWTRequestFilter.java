@@ -15,6 +15,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Servlet filter that intercepts incoming requests to validate JWT tokens.
+ * Skips authentication for /api/bootstrap and /api/auth/login endpoints. Sets
+ * security context with user email and role if token is valid. Responds with
+ * 401 Unauthorized if token is missing or invalid.
+ * 
+ * @author Eduardo Augusto (github.com/AsrielDreemurrGM/)
+ * @since Nov 11, 2025
+ */
 @Component
 public class JWTRequestFilter extends OncePerRequestFilter {
 

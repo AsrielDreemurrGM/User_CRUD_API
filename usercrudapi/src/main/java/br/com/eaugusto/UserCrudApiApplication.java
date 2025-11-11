@@ -2,6 +2,7 @@ package br.com.eaugusto;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 
 /**
  * Main entry point for the User CRUD API Spring Boot application.
@@ -9,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author Eduardo Augusto (github.com/AsrielDreemurrGM/)
  * @since Nov 10, 2025
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = { UserDetailsServiceAutoConfiguration.class })
 public class UserCrudApiApplication {
 
 	public static void main(String[] args) {
